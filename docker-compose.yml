@@ -1,0 +1,92 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_container
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./src/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - users_manager
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s     
+      timeout: 5s
+      retries: 5
+
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    env_file:
+      - .env
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - users_manager
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+
+  redis-ui:
+    image: redis/redisinsight:latest
+    container_name: redis-ui
+    env_file:
+      - .env
+    ports:
+      - "${REDIS_INSIGHT_PORT}:5540"
+    volumes:
+      - redis_ui_data:/data
+    networks:
+      - users_manager 
+    
+  users_manager:
+    build: .
+    container_name: users_manager
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    networks:
+      - users_manager
+    ports:
+      - "3000:3000"
+    command:  >
+      sh -c "
+      echo '--- Waiting for MySQL to be ready ---' &&
+      until nc -z db 3306; do
+        echo 'MySQL not ready yet... waiting 2s';
+        sleep 2;
+      done &&
+      echo 'MySQL is ready! Running setAdmin.js...' &&
+      node src/db/setAdmin.js &&
+      echo 'setAdmin.js finished. Starting app...' &&
+      npm start
+      "
+volumes:
+  db_data:
+  redis_data:
+  redis_ui_data:
+
+networks:
+  users_manager:
