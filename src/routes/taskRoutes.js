@@ -1,5 +1,7 @@
 import express from "express";
 import pool from "../services/mysqlPool.js"
+import { upload } from "../middleware/upload.js";
+import fs from "fs";
 
 const taskRouter = express.Router()
 
@@ -23,23 +25,46 @@ async function updateData(rows) {
     return rows;
 }
 
-taskRouter.post("/", async (req, res) => {
+taskRouter.post("/", upload.single("file"), async (req, res) => {
+    console.log(req.body)
+    console.log(req.file)
+    const { category } = req.body;
+    const file = req.file;
 
-    const { task_id, user_id, file_name, category, creation_time } = req.body;
-    if (req.user.user_id !== user_id && req.user.role !== "admin") {
-        return res.status(403).json({ error: "Forbidden" });
+    if (!req.user || !req.user.user_id) {
+        return res.status(401).json({ error: "Unauthorized" });
     }
+    if (!file) return res.status(400).json({ error: "No file uploaded" });
+
     try {
-        await pool.query(`
-            INSERT INTO tasks (task_id, user_id, file_name, category, creation_time, status, duration) 
-            VALUES (?, ?, ?, ?, ?, "pending", 0)
-            `,[task_id, user_id, file_name, category, creation_time]
-        );
-        res.status(201).json({ message: "Task created",  task_id });
+        const formData = new FormData();
+        const fileBuffer = fs.readFileSync(file.path);
+        formData.append("file", new Blob([fileBuffer]));
+
+        const response = await fetch(`${process.env.TASK_API_URL}/api/label-excel-bg?category=${category}`, {
+            method: "POST",
+            body: formData,
+            
+        });
+
+        if (response.ok) {
+            const taskInfo = await response.json()
+            console.log(taskInfo)
+            await pool.query(`
+                INSERT INTO tasks (task_id, user_id, file_name, category, creation_time, status, duration) 
+                VALUES (?, ?, ?, ?, ?, "pending", 0)
+                `,[taskInfo.task_id, req.user.user_id, file.filename, category, taskInfo.creation_time]
+            );
+            await pool.query(`INSERT INTO user_activity_logs (user_name, action, description, created_at) VALUES (?, ?, ?, NOW())`,
+                [req.user.user_name, "SUBMIT TASK", `Submitted a new task with id: ${taskInfo.task_id}`]
+            )
+            res.status(201).json({ message: "Task created",  task_id: taskInfo.task_id });
+        }
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Create task failed" });
     }
+
 });
 
 taskRouter.get("/", async (req, res) => {
