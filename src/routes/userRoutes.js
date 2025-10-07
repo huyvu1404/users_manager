@@ -288,7 +288,7 @@ userRouter.post("/reset-password", async (req, res) => {
     );
 
     let matched = null;
-    for (const r of userRows) {
+    for (const r of rows) {
       if (r.used) continue;
       if (new Date(r.expires_at) < new Date()) continue;
       if (timingSafeEqualHex(r.token_hash, tokenHash)) {
