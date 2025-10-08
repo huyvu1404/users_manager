@@ -122,7 +122,6 @@ taskRouter.get("/sampling/:task_id", async (req, res) => {
             await pool.query(`INSERT INTO user_activity_logs (user_name, action, description, created_at) VALUES (?, ?, ?, NOW())`,
                 [req.user.user_name, "SUBMIT SAMPLING TASK", `Submitted a new sampling task`]
             )
-            res.status(201).json({ message: "Sampling task created" });
         }
         for (const [key, value] of upstream.headers.entries()) {
             res.setHeader(key, value);
@@ -156,7 +155,6 @@ taskRouter.post("/sampling", upload.single("file"), async (req, res) => {
             await pool.query(`INSERT INTO user_activity_logs (user_name, action, description, created_at) VALUES (?, ?, ?, NOW())`,
                 [req.user.user_name, "SUBMIT SAMPLING TASK", `Submitted a new sampling task`]
             )
-            res.status(201).json({ message: "Sampling task created" });
         }
         for (const [key, value] of upstream.headers.entries()) {
             res.setHeader(key, value);
