@@ -3,7 +3,7 @@ import connection from "../services/redisServices.js"
 import { taskQueue, emailQueue } from "../queues/queue.js"
 
 async function checkExternalStatus(task_id) {
-    const externalRes = await fetch(`${process.env.TASK_API_URL}/api/label-excel-bg`)
+    const externalRes = await fetch(`${process.env.TASK_API_ENDPOINT}/api/label-excel-bg`)
         .then(r => r.json());
     const externalTasks = externalRes.tasks || [];
     const task = externalTasks.find(task => task.task_id === task_id)

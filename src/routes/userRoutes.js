@@ -39,7 +39,7 @@ userRouter.post("/register", authenticateToken,  async (req, res) => {
         [userId, email, tokenHash, expiresAt]
         );
 
-        const resetUrl = `http://${process.env.MAIN_APP_HOST}:${process.env.MAIN_APP_PORT}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+        const resetUrl = `${process.env.UI_APP_ENDPOINT}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
         const mailOptions = {
             from: 'Social Listening Auto Labeling <no-reply>',  
@@ -255,7 +255,7 @@ userRouter.post("/forgot-password", requestLimiter, async (req, res) => {
       [userId, email, tokenHash, expiresAt]
     );
 
-    const resetUrl = `http://${process.env.MAIN_APP_HOST}:${process.env.MAIN_APP_PORT}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+    const resetUrl = `${process.env.UI_APP_ENDPOINT}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
     const mailOptions = {
         from: 'Social Listening Auto Labeling <no-reply>',  
