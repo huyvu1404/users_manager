@@ -39,7 +39,7 @@ userRouter.post("/register", authenticateToken,  async (req, res) => {
         [userId, email, tokenHash, expiresAt]
         );
 
-        const resetUrl = `${process.env.UI_APP_ENDPOINT}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+        const resetUrl = `${process.env.FRONTEND_ENDPOINT}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
         const mailOptions = {
             from: 'Social Listening Auto Labeling <no-reply>',  
@@ -55,7 +55,7 @@ userRouter.post("/register", authenticateToken,  async (req, res) => {
             <a href="${resetUrl}">${resetUrl}</a><br><br>
 
             After setting your password, you can log in at:<br>
-            <a href="${process.env.UI_APP_ENDPOINT}/login">${process.env.UI_APP_ENDPOINT}/login</a>
+            <a href="${process.env.FRONTEND_ENDPOINT}/login">${process.env.FRONTEND_ENDPOINT}/login</a>
             `,
 
         };
@@ -224,7 +224,7 @@ userRouter.post("/forgot-password", requestLimiter, async (req, res) => {
       [userId, email, tokenHash, expiresAt]
     );
 
-    const resetUrl = `${process.env.UI_APP_ENDPOINT}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+    const resetUrl = `${process.env.FRONTEND_ENDPOINT}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
     const mailOptions = {
         from: 'Social Listening Auto Labeling <no-reply>',  
