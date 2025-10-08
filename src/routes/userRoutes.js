@@ -45,9 +45,20 @@ userRouter.post("/register", authenticateToken,  async (req, res) => {
             from: 'Social Listening Auto Labeling <no-reply>',  
             to: email,
             subject: "Đăng kí tài khoản thành công",
-            text: `Truy cập link sau để tạo mật khẩu mới: ${resetUrl}`,
-            html: `<p>Truy cập link bên dưới để tạo mật khẩu mới:</p>
-                    <p><a href="${resetUrl}">Đặt lại mật khẩu</a></p>`
+            text: `
+                Tài khoản của bạn đã được tạo thành công trên hệ thống.
+
+                Thông tin tài khoản:
+                - Tên đăng nhập: ${user_name}
+
+                Vui lòng truy cập liên kết dưới đây để thiết lập mật khẩu cho tài khoản của bạn:
+                ${resetUrl}
+
+                Sau khi đặt mật khẩu, bạn có thể đăng nhập tại:
+                ${process.env.UI_APP_ENDPOINT}/login}
+            `,
+            html: `<p>Tạo mật khẩu mới:</p>
+                    <p><a href="${resetUrl}">Tạo mật khẩu</a></p>`
         };
 
         await sendEmail(mailOptions)
@@ -220,8 +231,12 @@ userRouter.post("/forgot-password", requestLimiter, async (req, res) => {
         from: 'Social Listening Auto Labeling <no-reply>',  
         to: email,
         subject: "Yêu cầu đặt lại mật khẩu",
-        text: `Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu. Truy cập link sau để đặt lại: ${resetUrl}`,
-        html: `<p>Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu. Truy cập link bên dưới để đặt lại:</p>
+        text: `
+            Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu. 
+            Vui lòng truy cập liên kết dưới đây để thiết lập mật khẩu cho tài khoản của bạn:
+            ${resetUrl}
+            `,
+        html: `<p>Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu. Truy cập đường liên kết bên dưới để thiết lập mật khẩu cho tài khoản của bạn:</p>
                 <p><a href="${resetUrl}">Đặt lại mật khẩu</a></p>`
     };
 
