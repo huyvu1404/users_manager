@@ -113,7 +113,7 @@ taskRouter.get("/sampling/:task_id", async (req, res) => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const upstream = await fetch(`${process.env.SAMPLE_API_ENDPOINT}/api/sample`, {
+        const upstream = await fetch(`${process.env.SAMPLING_API_ENDPOINT}/api/sample`, {
             method: "POST",
             body: formData,
         });
@@ -146,7 +146,7 @@ taskRouter.post("/sampling", upload.single("file"), async (req, res) => {
         const fileBuffer = fs.readFileSync(file.path);
         formData.append("file", new Blob([fileBuffer]));
 
-        const upstream = await fetch(`${process.env.SAMPLE_API_ENDPOINT}/api/sample`, {
+        const upstream = await fetch(`${process.env.SAMPLING_API_ENDPOINT}/api/sample`, {
             method: "POST",
             body: formData,
             

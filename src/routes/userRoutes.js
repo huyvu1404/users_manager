@@ -134,47 +134,6 @@ userRouter.post("/change-password", authenticateToken, async (req, res) => {
     }
 })
 
-// userRouter.post("/reset-password", async (req, res) => {
-//   const { email, token, newPassword } = req.body;
-//   if (!email || !token || !newPassword) return res.status(400).json({ error: "Missing fields" });
-
-//   try {
-//     const [users] = await pool.query("SELECT id FROM users WHERE email = ?", [email]);
-//     if (users.length === 0) return res.status(400).json({ error: "Invalid token or email" });
-//     const userId = users[0].id;
-
-//     const tokenHash = hashToken(token);
-
-//     const [rows] = await pool.query(
-//       `SELECT id, token_hash, expires_at, used FROM password_reset_tokens WHERE user_id = ? ORDER BY created_at DESC LIMIT 10`,
-//       [userId]
-//     );
-
-//     let matched = null;
-//     for (const r of rows) {
-//       if (r.used) continue;
-//       if (new Date(r.expires_at) < new Date()) continue;
-//       if (timingSafeEqualHex(r.token_hash, tokenHash)) {
-//         matched = r;
-//         break;
-//       }
-//     }
-//     if (!matched) return res.status(400).json({ error: "Token invalid or expired" });
-
-//     const saltRounds = 12;
-//     const passwordHash = await bcrypt.hash(newPassword, saltRounds);
-//     await conn.query("UPDATE users SET password_hash = ? WHERE id = ?", [passwordHash, userId]);
-//     await conn.query("UPDATE password_reset_tokens SET used = TRUE WHERE id = ?", [matched.id]);
-
-//     return res.json({ ok: true, message: "Password reset successful" });
-//   } catch (err) {
-//     console.error(err);
-//     return res.status(500).json({ error: "Server error" });
-//   } finally {
-//     conn.release();
-//   }
-// });
-
 userRouter.get("/", authenticateToken, async (req, res) => {
     if (req.user.role !== "admin") {
         return res.status(403).json({ error: "Forbidden" });
