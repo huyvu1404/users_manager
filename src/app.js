@@ -11,13 +11,11 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: process.env.UI_APP_ENDPOINT || "*",
+    origin: process.env.FRONTEND_ENDPOINT || "*",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
   })
 );
-
-app.options("*", cors());
 
 app.use("/api/users", userRouter);
 app.use("/api/tasks", authenticateToken, taskRouter);
