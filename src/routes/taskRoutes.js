@@ -118,15 +118,22 @@ taskRouter.get("/sampling/:task_id", async (req, res) => {
             body: formData,
         });
 
-        if (upstream.ok) {
-            await pool.query(`INSERT INTO user_activity_logs (user_name, action, description, created_at) VALUES (?, ?, ?, NOW())`,
-                [req.user.user_name, "SUBMIT SAMPLING TASK", `Submitted a new sampling task`]
-            )
+        if (!upstream.ok) {
+            const text = await upstream.text();
+            return res.status(upstream.status).send(text);
         }
+        await pool.query(`INSERT INTO user_activity_logs (user_name, action, description, created_at) VALUES (?, ?, ?, NOW())`,
+            [req.user.user_name, "SUBMIT SAMPLING TASK", `Submitted a new sampling task`]
+        )
         for (const [key, value] of upstream.headers.entries()) {
             res.setHeader(key, value);
         }
-        upstream.body.pipe(res);
+        if (upstream.body) {
+            const nodeStream = Readable.fromWeb(upstream.body);
+            nodeStream.pipe(res);
+        } else {
+            throw new Error("Upstream body is null");
+        }
 
     } catch (err) {
         res.status(500).json({ error: "Get sample failed", message: err.message });
@@ -151,15 +158,22 @@ taskRouter.post("/sampling", upload.single("file"), async (req, res) => {
             
         });
 
-        if (upstream.ok) {
-            await pool.query(`INSERT INTO user_activity_logs (user_name, action, description, created_at) VALUES (?, ?, ?, NOW())`,
-                [req.user.user_name, "SUBMIT SAMPLING TASK", `Submitted a new sampling task`]
-            )
+        if (!upstream.ok) {
+            const text = await upstream.text();
+            return res.status(upstream.status).send(text);
         }
+        await pool.query(`INSERT INTO user_activity_logs (user_name, action, description, created_at) VALUES (?, ?, ?, NOW())`,
+            [req.user.user_name, "SUBMIT SAMPLING TASK", `Submitted a new sampling task`]
+        )
         for (const [key, value] of upstream.headers.entries()) {
             res.setHeader(key, value);
         }
-        upstream.body.pipe(res);
+        if (upstream.body) {
+            const nodeStream = Readable.fromWeb(upstream.body);
+            nodeStream.pipe(res);
+        } else {
+            throw new Error("Upstream body is null");
+        }
     } catch (err) {
         console.log(err)
         res.status(500).json({ error: "Create task failed" });
