@@ -44,21 +44,20 @@ userRouter.post("/register", authenticateToken,  async (req, res) => {
         const mailOptions = {
             from: 'Social Listening Auto Labeling <no-reply>',  
             to: email,
-            subject: "Đăng kí tài khoản thành công",
-            text: `
-                Tài khoản của bạn đã được tạo thành công trên hệ thống.
+            subject: "Account Registration Successful",
+            html: `
+            Your account has been successfully created in the system.<br><br>
 
-                Thông tin tài khoản:
-                - Tên đăng nhập: ${user_name}
+            Account Information:<br>
+            - Username: ${user_name}<br><br>
 
-                Vui lòng truy cập liên kết dưới đây để thiết lập mật khẩu cho tài khoản của bạn:
-                ${resetUrl}
+            Please visit the link below to set a password for your account:<br>
+            <a href="${resetUrl}">${resetUrl}</a><br><br>
 
-                Sau khi đặt mật khẩu, bạn có thể đăng nhập tại:
-                ${process.env.UI_APP_ENDPOINT}/login}
+            After setting your password, you can log in at:<br>
+            <a href="${process.env.UI_APP_ENDPOINT}/login">${process.env.UI_APP_ENDPOINT}/login</a>
             `,
-            html: `<p>Tạo mật khẩu mới:</p>
-                    <p><a href="${resetUrl}">Tạo mật khẩu</a></p>`
+
         };
 
         await sendEmail(mailOptions)
@@ -230,15 +229,14 @@ userRouter.post("/forgot-password", requestLimiter, async (req, res) => {
     const mailOptions = {
         from: 'Social Listening Auto Labeling <no-reply>',  
         to: email,
-        subject: "Yêu cầu đặt lại mật khẩu",
-        text: `
-            Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu. 
-            Vui lòng truy cập liên kết dưới đây để thiết lập mật khẩu cho tài khoản của bạn:
-            ${resetUrl}
-            `,
-        html: `<p>Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu. Truy cập đường liên kết bên dưới để thiết lập mật khẩu cho tài khoản của bạn:</p>
-                <p><a href="${resetUrl}">Đặt lại mật khẩu</a></p>`
-    };
+        subject: "Password Reset Request",
+        html: `
+        You (or someone else) have requested to reset your password.<br><br>
+
+        Please click the link below to set a new password for your account:<br>
+        <a href="${resetUrl}">Reset Password</a>
+        `,
+    }
 
     await sendEmail(mailOptions)
     return res.json({ ok: true });
