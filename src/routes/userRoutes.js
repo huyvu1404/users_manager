@@ -154,13 +154,14 @@ userRouter.get("/", authenticateToken, async (req, res) => {
                 u.id, 
                 u.full_name, 
                 u.user_name, 
+                u.email,
                 u.last_active, 
                 r.role,
                 COUNT(t.task_id) AS total_tasks
             FROM users u
             LEFT JOIN user_roles r ON u.id = r.user_id
             LEFT JOIN tasks t ON u.id = t.user_id
-            GROUP BY u.id, u.full_name, u.user_name, u.last_active, r.role;
+            GROUP BY u.id, u.full_name, u.user_name, u.email, u.last_active, r.role;
             `
         );
         res.json(rows);
