@@ -54,7 +54,7 @@ taskRouter.post("/", upload.single("file"), async (req, res) => {
             await pool.query(`
                 INSERT INTO tasks (task_id, user_id, file_name, category, creation_time, status, duration) 
                 VALUES (?, ?, ?, ?, ?, "pending", 0)
-                `,[taskInfo.task_id, req.user.user_id, file.filename, category, taskInfo.creation_time]
+                `,[taskInfo.task_id, req.user.user_id, file.originalname, category, taskInfo.creation_time]
             );
             await pool.query(`INSERT INTO user_activity_logs (user_name, action, description, created_at) VALUES (?, ?, ?, NOW())`,
                 [req.user.user_name, "SUBMIT TASK", `Submitted a new task with id: ${taskInfo.task_id}`]
